@@ -6,4 +6,9 @@ In the process of establishing inbred strains in laboratories, the chromosomes o
 
 ## Software
 
-
+* `ahamis.R`
+  + Main program written in R language
+* `data/`
+  + Dataset for 13 Wistar Kyoto colony-derived rat strains (including SHR/Izm, SHRSP/Izm and WKY/Izm)
+* `VCFgenotypecount.pl`
+  + Perl program for preprocessing your own VCF file
