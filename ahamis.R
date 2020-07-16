@@ -1,22 +1,21 @@
 library(ggplot2);
-library(ape);
 
 setwd("data")
 
 id = read.table(
   "WKYvariantsinclSHR13.strains.txt",
-  header=F,
+  header = FALSE,
   stringsAsFactors = FALSE);
-x = (id$V1==id$V2);
+x = (id$V1 == id$V2);
 id$V1[!x] = paste(id$V1[!x], id$V2[!x], sep="_");
 id = id$V1;
 
-
 data = read.table(
   "WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.genotypecount",
-  header=F, stringsAsFactors=F);
+  header = FALSE,
+  stringsAsFactors=F);
 names(data)[ncol(data)] = "count";
-data = data[order(data$count, decreasing=TRUE), ];
+data = data[order(data$count, decreasing = TRUE), ];
 n = ncol(data) - 1;
 # unify SNPs in complete LD
 for (i in 1:nrow(data)) {
@@ -62,7 +61,7 @@ for (i in 1:nrow(data)) {
   # 0 2
   g = gsub("1/1", "0/0", g);
   data = unify_snp_g();
-  }
+}
 data = data[data$count >0, ];
 data = data[order(data$count, decreasing=TRUE), ];
 
@@ -72,7 +71,8 @@ data = data[order(data$count, decreasing=TRUE), ];
 ###
 foo = read.table(
   "WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.positions.gz",
-  header=F, stringsAsFactors=F);
+  header = FALSE,
+  stringsAsFactors = FALSE);
 names(foo) = c("chr", "pos");
 foo = foo[foo$chr %in% paste("chr", c(1:20,"X"), sep=""), ];
 foo$chr = sub("chr", "", foo$chr);
@@ -83,92 +83,93 @@ chrposall = foo;
 
 datacode = read.table(
   "genotype/genotypecount.polymorphic.withcode.txt",
-  header=T, stringsAsFactors=F);
+  header = TRUE,
+  stringsAsFactors = FALSE);
 LDclusters = data.frame();
 for (i in 1:nrow(datacode)) {
-print(i);
-if (datacode$count[i] < 10) { #20
-  next
+  print(i);
+  if (datacode$count[i] < 10) { #20
+    next
   };
-if (length(grep("[23]", datacode$code[i])) > 0) { next }
-foo = read.table(
-  paste0(
-    "genotype/",
-    datacode$code[i]),
+  if (length(grep("[23]", datacode$code[i])) > 0) { next }
+  foo = read.table(
+    paste0(
+      "genotype/",
+      datacode$code[i]),
     header=F, stringsAsFactors=F);
-names(foo) = c("chr", "pos");
-foo = foo[foo$chr %in% paste("chr", c(1:20,"X"), sep=""), ];
-foo$chr = sub("chr", "", foo$chr);
-foo$chr = sub("X", "21", foo$chr);
-foo$chr = as.numeric(foo$chr);
-foo = foo[order(foo$chr, foo$pos), ];
-chrpossegregate = foo;
-
-
-# extract clusters by variant count, rather than bp,
-# in order to avoid density bias of variants/sequencing in genome
-chrpossegregate$orderinall =
-  match(paste(chrpossegregate$chr, chrpossegregate$pos),
-        paste(chrposall$chr, chrposall$pos));
-chrpossegregate$gapfromprev =
-  c(0, diff(chrpossegregate$orderinall));
-# x = chrpossegregate$gapfromprev;
-# x = x[-1];
-# mean(x <= 10);
-# x = x[x > 10];
-# plot(log10(sort(x)));
-## max gap set to 100
-## this is conservative; can subdivide one cluster
-maxgap = 100;
-
-# Cluster neighbouring SNPs
-snpstowindow = function(chr, pos, gapfromprev) {
-  if (length(chr)==0) {
-    return(data.frame());
-  }
-  result = c(chr[1], pos[1]);
-  cprev = chr[1];
-  pprev = pos[1];
-  snpsinwindow  = 1;
-  if (length(chr) > 1) {
-    for (j in 2:length(chr)) {
-      if (chr[j]==cprev & (gapfromprev[j] <= maxgap)) {
-        pprev = pos[j];
-        snpsinwindow = snpsinwindow + 1;
-      } else {
-        result = c(result, pprev, snpsinwindow, chr[j], pos[j]);
-        cprev = chr[j];
-        pprev = pos[j];
-        snpsinwindow = 1;
+  names(foo) = c("chr", "pos");
+  foo = foo[foo$chr %in% paste("chr", c(1:20,"X"), sep=""), ];
+  foo$chr = sub("chr", "", foo$chr);
+  foo$chr = sub("X", "21", foo$chr);
+  foo$chr = as.numeric(foo$chr);
+  foo = foo[order(foo$chr, foo$pos), ];
+  chrpossegregate = foo;
+  
+  # extract clusters by variant count, rather than bp,
+  # in order to avoid density bias of variants/sequencing in genome
+  chrpossegregate$orderinall =
+    match(paste(chrpossegregate$chr, chrpossegregate$pos),
+          paste(chrposall$chr, chrposall$pos));
+  chrpossegregate$gapfromprev =
+    c(0, diff(chrpossegregate$orderinall));
+  # x = chrpossegregate$gapfromprev;
+  # x = x[-1];
+  # mean(x <= 10);
+  # x = x[x > 10];
+  # plot(log10(sort(x)));
+  ## max gap set to 100
+  ## this is conservative; can subdivide one cluster
+  maxgap = 100;
+  
+  # Cluster neighbouring SNPs
+  snpstowindow = function(chr, pos, gapfromprev) {
+    if (length(chr)==0) {
+      return(data.frame());
+    }
+    result = c(chr[1], pos[1]);
+    cprev = chr[1];
+    pprev = pos[1];
+    snpsinwindow  = 1;
+    if (length(chr) > 1) {
+      for (j in 2:length(chr)) {
+        if (chr[j]==cprev & (gapfromprev[j] <= maxgap)) {
+          pprev = pos[j];
+          snpsinwindow = snpsinwindow + 1;
+        } else {
+          result = c(result, pprev, snpsinwindow, chr[j], pos[j]);
+          cprev = chr[j];
+          pprev = pos[j];
+          snpsinwindow = 1;
+        }
       }
     }
+    result = c(result, pprev, snpsinwindow);
+    result = data.frame(matrix(result, ncol=4, byrow=TRUE));
+    names(result) = c("chr", "start", "end", "snpsinwindow");
+    result
   }
-  result = c(result, pprev, snpsinwindow);
-  result = data.frame(matrix(result, ncol=4, byrow=TRUE));
-  names(result) = c("chr", "start", "end", "snpsinwindow");
-  result
-}
-
-w = snpstowindow(chrpossegregate$chr,
-             chrpossegregate$pos,
-             chrpossegregate$gapfromprev);
-# plot(log10(sort(w$snpsinwindow)));
-# plot(sort(w$snpsinwindow[w$snpsinwindow < 50]));
-# require 20 >= snpsinwindow
-# This is conservative; some complete LD SNP clusters could be undetected
-w = w[w$snpsinwindow >= 20, ];
-
-if (nrow(w) > 0) {
-  w$snpsinwindow = paste(datacode$code[i], w$snpsinwindow, sep=".");
-  names(w)[4] = "name";
-  LDclusters = rbind(LDclusters, w);
-} else {
-  print(paste0("No complete LD clusters detected for ", i));
-}
-
+  
+  w = snpstowindow(chrpossegregate$chr,
+                   chrpossegregate$pos,
+                   chrpossegregate$gapfromprev);
+  # plot(log10(sort(w$snpsinwindow)));
+  # plot(sort(w$snpsinwindow[w$snpsinwindow < 50]));
+  # require 20 >= snpsinwindow
+  # This is conservative; some complete LD SNP clusters could be undetected
+  w = w[w$snpsinwindow >= 20, ];
+  
+  if (nrow(w) > 0) {
+    w$snpsinwindow = paste(datacode$code[i], w$snpsinwindow, sep=".");
+    names(w)[4] = "name";
+    LDclusters = rbind(LDclusters, w);
+  } else {
+    print(paste0("No complete LD clusters detected for ", i));
+  }
+  
 }
 write.table(LDclusters, "LDclusters.txt",
             row.names=F, sep="\t");
+
 
 ##
 ## List overlaps as LDclustersoverlap
@@ -234,6 +235,7 @@ for (i in c("chr", "start", "end", "count")) {
 }
 LDclustersoverlap = result;
 
+
 ##
 ## Annotate LDclustersoverlap
 ##
@@ -241,7 +243,7 @@ LDclustersoverlap$haplotypecount = 1;
 LDclustersoverlap$haplotypename = "";
 for (i in 1:nrow(LDclustersoverlap)) {
   if (LDclustersoverlap$count[i] == 0) { next };
-
+  
   # generate datasmall
   x = as.character(LDclustersoverlap$name[i]);
   x = strsplit(x, " ")[[1]];
@@ -259,13 +261,15 @@ for (i in 1:nrow(LDclustersoverlap)) {
   LDclustersoverlap$haplotypecount[i] = length(levels(x));
   LDclustersoverlap$haplotypename[i] =
     paste0(as.numeric(x), collapse=" ");
-
+  
 }
-
 write.table(LDclustersoverlap, "LDclustersoverlap.txt",
             row.names=F, sep="\t");
 
 
+##
+## Plot ancestral haplotype map
+##
 ggplot(data=LDclustersoverlap) +
   geom_segment(aes(x=chr, xend=chr, y=start, yend=end,
                    color=factor(haplotypecount),
