@@ -14,3 +14,15 @@ In the process of establishing inbred strains in laboratories, the chromosomes o
   + Dataset for 13 Wistar Kyoto colony-derived rat strains (including SHR/Izm, SHRSP/Izm and WKY/Izm)
 * `VCFgenotypecount.pl`
   + Perl program for preprocessing your own VCF file
+* `VCFgenotypeextract.pl`
+  + Perl program for preprocessing your own VCF file
+
+## How to preprocess your own data
+
+* `VCFgenotypecount.pl`
+  + Perl program to generate the genotypecount file from VCF file
+  + `zgrep -v ^# WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.vcf.gz | VCFgenotypecount.pl > WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.genotypecount
+* `VCFgenotypeextract.pl`
+  + Perl program to process a VCF file and extract the position of SNPs with a specific strain distribution pattern. The argument `0_0_0_0_0_0_0_0_0_0_0_0_1` specifies the pattern and the output file.
+  + `zgrep -v ^# WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.vcf.gz | VCFgenotypeextract.pl 0_0_0_0_0_0_0_0_0_0_0_0_1`
+
