@@ -20,9 +20,9 @@ In the process of establishing inbred strains in laboratories, the chromosomes o
 ## How to preprocess your own data
 
 * `VCFgenotypecount.pl`
-  + Perl program to generate the genotypecount file from VCF file
+  + Perl program to generate the genotypecount file from a VCF file
   + `zgrep -v ^# WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.vcf.gz | VCFgenotypecount.pl > WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.genotypecount
 * `VCFgenotypeextract.pl`
-  + Perl program to process a VCF file and extract the position of SNPs with a specific strain distribution pattern. The argument `0_0_0_0_0_0_0_0_0_0_0_0_1` specifies the pattern and the output file.
+  + Perl program to process a VCF file and extract the position of SNPs with a specific strain distribution pattern. The argument `0_0_0_0_0_0_0_0_0_0_0_0_1` specifies the pattern and the output file. Put this file in `genotype/` directory.
   + `zgrep -v ^# WKYvariantsinclSHR13.minGQ10_minDP4.maskhetgenotype.max-missing-count0.vcf.gz | VCFgenotypeextract.pl 0_0_0_0_0_0_0_0_0_0_0_0_1`
 
