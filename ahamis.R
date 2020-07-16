@@ -64,6 +64,14 @@ for (i in 1:nrow(data)) {
 }
 data = data[data$count >0, ];
 data = data[order(data$count, decreasing=TRUE), ];
+write.table(data,
+            "genotype/genotypecount.txt",
+            row.names = TRUE,
+            sep = "\t")
+# Edit this tab text file by hand:
+# Remove monomorphic line (i.e., genotype identical for all strains)
+# Add last column for "code"
+# Save as genotype/genotypecount.polymorphic.withcode.txt
 
 
 ###
